@@ -89,7 +89,12 @@ async function getAddressesapi() {
 			}
 		
 			const text = await response.text();
-			const lines = text.split('\n');
+			let lines;
+			if (text.includes('\r\n')){
+				lines = text.split('\r\n');
+			} else {
+				lines = text.split('\n');
+			}
 			const regex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+)?(#.*)?$/;
 		
 			const apiAddresses = lines.map(line => {
@@ -124,7 +129,12 @@ async function getAddressescsv() {
 			}
 		
 			const text = await response.text();// 使用正确的字符编码解析文本内容
-			const lines = text.split('\n');
+			let lines;
+			if (text.includes('\r\n')){
+				lines = text.split('\r\n');
+			} else {
+				lines = text.split('\n');
+			}
 		
 			// 检查CSV头部是否包含必需字段
 			const header = lines[0].split(',');
@@ -211,6 +221,8 @@ export default {
 			host = url.searchParams.get('host');
 			uuid = url.searchParams.get('uuid');
 			path = url.searchParams.get('path');
+			edgetunnel = url.searchParams.get('edgetunnel') || edgetunnel;
+			RproxyIP = url.searchParams.get('proxyip') || RproxyIP;
 			
 			if (!url.pathname.includes("/sub")) {
 				const responseText = `
@@ -377,8 +389,6 @@ export default {
 					addressid = addressid.split(':')[0];
 				}
 				
-				edgetunnel = url.searchParams.get('edgetunnel') || edgetunnel;
-				RproxyIP = url.searchParams.get('proxyip') || RproxyIP;
 				if (edgetunnel.trim() === 'cmliu' && RproxyIP.trim() === 'true') {
 					// 将addressid转换为小写
 					let lowerAddressid = addressid.toLowerCase();
@@ -422,7 +432,7 @@ export default {
 
 			const response = new Response(base64Response, {
 				headers: { 
-					"Content-Disposition": `attachment; filename*=utf-8''${encodeURIComponent(FileName)}; filename=${FileName}`,
+					//"Content-Disposition": `attachment; filename*=utf-8''${encodeURIComponent(FileName)}; filename=${FileName}`,
 					"content-type": "text/plain; charset=utf-8",
 					"Profile-Update-Interval": `${SUBUpdateTime}`,
 					"Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${total}; expire=${expire}`,
